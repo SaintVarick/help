@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Нотатки — bydimov</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#fafafa;
+    --muted:#a7a6a6;
+    --bg:#050505;
+
+    --paper:#efe8d8;
+    --paper-2:#e7dfcb;
+    --paper-line:#cfc4a6;
+    --paper-margin:#c0685f;
+    --paper-ink:#2b271f;
+    --paper-ink-soft:#6f6754;
+
+    --line-h: 44px;
+
+    --ease: cubic-bezier(.22,1,.36,1);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ min-height:100%; background:var(--bg); }
+  body{
+    font-family:'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+  a{ color:inherit; text-decoration:none; }
+
+  /* ===================== TOPBAR (reused from index) ===================== */
+  .topbar{
+    position:fixed; left:0; right:0; top:0; z-index:10;
+    padding: 34px clamp(20px, 5vw, 75px) 0;
+    display:flex; align-items:center; justify-content:space-between;
+    pointer-events:none;
+  }
+  .topbar > *{ pointer-events:auto; }
+  .brand{
+    font-size:20px; font-weight:700; letter-spacing:.2px; color:var(--ink);
+    transition: opacity .25s var(--ease);
+  }
+  .brand:hover{ opacity:.8; }
+  .back{
+    font-size:14px; color:var(--muted); font-weight:500;
+    display:flex; align-items:center; gap:6px;
+    transition: color .25s var(--ease);
+  }
+  .back:hover{ color:var(--ink); }
+
+  /* ===================== PAGE ===================== */
+  .page{
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding: 120px 20px 60px;
+  }
+
+  /* ===================== NOTEBOOK ===================== */
+  .notebook{
+    position:relative;
+    width:100%;
+    max-width:620px;
+    filter: drop-shadow(0 30px 60px rgba(0,0,0,.55));
+  }
+
+  .rings{
+    position:absolute;
+    left:-14px; top:34px; bottom:34px;
+    width:28px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    z-index:2;
+  }
+  .ring{
+    width:26px; height:26px;
+    border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #3a3a3a, #0c0c0c 70%);
+    box-shadow: inset 0 0 0 3px #050505, 0 1px 2px rgba(0,0,0,.6);
+  }
+
+  .paper{
+    position:relative;
+    background:
+      linear-gradient(90deg, var(--paper-margin) 0, var(--paper-margin) 2px, transparent 2px) 52px 0/100% 100% no-repeat,
+      linear-gradient(155deg, var(--paper) 0%, var(--paper-2) 100%);
+    border-radius: 6px;
+    padding: 54px clamp(28px, 6vw, 56px) 40px clamp(64px, 10vw, 88px);
+    color: var(--paper-ink);
+    overflow:hidden;
+  }
+  .paper::before{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:6px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 -18px 26px -20px rgba(0,0,0,.18);
+    pointer-events:none;
+    z-index:3;
+  }
+
+  .nb-eyebrow{
+    font-family:'Caveat', cursive;
+    font-size: 22px;
+    color: var(--paper-ink-soft);
+    transform: rotate(-1.5deg);
+    display:inline-block;
+  }
+  .nb-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: clamp(38px, 6vw, 50px);
+    line-height:1.05;
+    margin-top: 2px;
+    color: var(--paper-ink);
+    transform: rotate(-0.6deg);
+  }
+
+  /* Ruled area: the grid lines live on this container only,
+     so every row height matches the line spacing exactly —
+     no drift between the text baseline and the printed rule. */
+  .nb-list{
+    list-style:none;
+    margin-top: 26px;
+    padding-top: 6px;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(var(--line-h) - 1px),
+      var(--paper-line) calc(var(--line-h) - 1px),
+      var(--paper-line) var(--line-h)
+    );
+  }
+  .nb-list li{ height: var(--line-h); }
+
+  .nb-row{
+    display:flex;
+    align-items:flex-end;
+    gap: 16px;
+    height:100%;
+    padding-bottom: 8px;
+    color: inherit;
+    text-decoration:none;
+    border-radius:4px;
+    transition: background-color .2s var(--ease), transform .2s var(--ease);
+  }
+  a.nb-row:hover{
+    background-color: rgba(192,104,95,.08);
+    transform: translateX(2px);
+  }
+  a.nb-row:active{ transform: translateX(2px) scale(.995); }
+
+  .nb-num{
+    font-family:'Caveat', cursive;
+    font-weight:600;
+    font-size: 24px;
+    color: var(--paper-margin);
+    width: 26px;
+    flex: none;
+    line-height:1;
+    transition: color .2s var(--ease);
+  }
+  .nb-text{
+    font-size: 16.5px;
+    line-height:1;
+    color: var(--paper-ink);
+    font-weight:500;
+    background-image: linear-gradient(var(--paper-margin), var(--paper-margin));
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size .25s var(--ease);
+    padding-bottom: 2px;
+  }
+  .nb-text .muted{
+    color: var(--paper-ink-soft);
+    font-weight:400;
+  }
+  a.nb-row:hover .nb-text{ background-size: 100% 1px; }
+  a.nb-row:hover .nb-num{ color: var(--paper-ink); }
+
+  .nb-foot{
+    margin-top: 22px;
+    font-family:'Caveat', cursive;
+    font-size: 19px;
+    color: var(--paper-ink-soft);
+    transform: rotate(-1deg);
+  }
+
+  .corner{
+    position:absolute;
+    right:0; top:0;
+    width:34px; height:34px;
+    background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,.10) 50%);
+    border-radius: 0 6px 0 0;
+    z-index:4;
+  }
+
+  @media (max-width: 560px){
+    .rings{ left:-10px; width:20px; }
+    .ring{ width:18px; height:18px; }
+    .paper{ padding-left: 52px; }
+  }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="Home">bydimov</a>
+    <a class="back" href="index.html">← На головну</a>
+  </header>
+
+  <main class="page">
+    <div class="notebook">
+      <div class="rings" aria-hidden="true">
+        <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+        <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+        <div class="ring"></div>
+      </div>
+
+      <div class="paper">
+        <div class="corner" aria-hidden="true"></div>
+        <span class="nb-eyebrow">чернетка</span>
+        <h1 class="nb-title">Нотатки</h1>
+
+        <ol class="nb-list">
+          <li><a class="nb-row" href="https://arena.ai/code"><span class="nb-num">01</span><span class="nb-text">Аі для клонування сайтів <span class="muted"></span></span></a></li>
+          <li><a class="nb-row" href="https://app.visionstory.ai/"><span class="nb-num">02</span><span class="nb-text">Аі для анімації фото</span></a></li>
+          <li><a class="nb-row" href="https://motionsites.ai/"><span class="nb-num">03</span><span class="nb-text">Промти для генерації сайту</span></a></li>
+          <li><a class="nb-row" href="https://sketchfab.com/3d-models/popular"><span class="nb-num">04</span><span class="nb-text">3d моделі (glb)</span></a></li>
+          <li><a class="nb-row" href="https://massgrave.dev"><span class="nb-num">05</span><span class="nb-text">Активація віндовс і офісів</span></a></li>
+          <li><a class="nb-row" href="https://www.watermarkremover.io/ru/upload"><span class="nb-num">06</span><span class="nb-text">Видалення водяного знаку</span></a></li>
+          <li><a class="nb-row" href="https://ai-text-humanizer.com"><span class="nb-num">07</span><span class="nb-text">Перефразування тексту АІ</span></a></li>
+          <li><a class="nb-row" href="https://huggingface.co/spaces/Qwen/Qwen3-TTS-Demo"><span class="nb-num">08</span><span class="nb-text">АІ генерація голосу</span></a></li>
+          <li><a class="nb-row" href="note-9.html"><span class="nb-num">09</span><span class="nb-text">Текст дев'ятого пункту</span></a></li>
+          <li><a class="nb-row" href="note-10.html"><span class="nb-num">10</span><span class="nb-text">Текст десятого пункту</span></a></li>
+        </ol>
+
+        <p class="nb-foot">залиш собі нагадування тут…</p>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>
